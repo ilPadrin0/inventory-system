@@ -1,0 +1,22 @@
+# === 공통 ===
+.DS_Store
+node_modules/
+dist/
+*.log
+*.tmp
+*.sw?
+
+# === 백엔드 ===
+/backend/bin/
+/backend/build/
+/backend/.classpath
+/backend/.project
+/backend/.settings/
+/backend/.apt_generated
+/backend/.factorypath
+/backend/.sts4-cache
+
+# === 프론트엔드 ===
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.local
