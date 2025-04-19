@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h2>상품 등록</h2>
-    <form @submit.prevent="createProduct">
-      <input v-model="name" placeholder="상품명" required />
-      <input v-model.number="quantity" type="number" placeholder="수량" required />
-      <input v-model.number="price" type="number" placeholder="가격" required />
-      <button type="submit">등록</button>
+    <h2>{{ product.id ? '상품 수정' : '상품 등록' }}</h2>
+    <form @submit.prevent="saveProduct">
+      <input v-model="product.name" placeholder="상품명" required />
+      <input v-model.number="product.quantity" type="number" placeholder="수량" required />
+      <input v-model.number="product.price" type="number" placeholder="가격" required />
+      <button type="submit">{{ product.id ? '수정' : '등록' }}</button>
     </form>
   </div>
 </template>
@@ -14,27 +14,48 @@
 import api from '../utils/axios';
 
 export default {
+  props: {
+    productToEdit: Object, // 부모로부터 수정할 상품을 전달받음
+  },
   data() {
     return {
-      name: '',
-      quantity: 0,
-      price: 0,
+      product: {
+        id: null,
+        name: '',
+        quantity: 0,
+        price: 0,
+      },
     };
   },
+  watch: {
+    productToEdit: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.product = { ...newVal };
+        }
+      },
+    },
+  },
   methods: {
-    async createProduct() {
+    async saveProduct() {
       try {
-        await api.post('/products', {
-          name: this.name,
-          quantity: this.quantity,
-          price: this.price,
-        });
-        alert('상품이 등록되었습니다!');
-        this.name = '';
-        this.quantity = 0;
-        this.price = 0;
+        if (this.product.id) {
+          // 수정
+          await api.put(`/products/${this.product.id}`, this.product);
+          alert('상품이 수정되었습니다!');
+        } else {
+          // 등록
+          await api.post('/products', this.product);
+          alert('상품이 등록되었습니다!');
+        }
+
+        // 초기화
+        this.product = { id: null, name: '', quantity: 0, price: 0 };
+        this.$emit('product-saved'); // 부모에게 저장 완료 알림
+
       } catch (error) {
-        console.error('등록 실패:', error);
+        console.error('저장 실패:', error);
       }
     },
   },
