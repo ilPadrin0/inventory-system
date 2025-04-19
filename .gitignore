@@ -15,6 +15,7 @@ dist/
 /backend/.apt_generated
 /backend/.factorypath
 /backend/.sts4-cache
+/backend/src/main/resources/application.yml
 
 # === 프론트엔드 ===
 /frontend/node_modules/
