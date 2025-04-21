@@ -15,7 +15,7 @@ import api from '../utils/axios';
 
 export default {
   props: {
-    productToEdit: Object, // 부모로부터 수정할 상품을 전달받음
+    productToEdit: Object,
   },
   data() {
     return {
@@ -41,18 +41,15 @@ export default {
     async saveProduct() {
       try {
         if (this.product.id) {
-          // 수정
           await api.put(`/products/${this.product.id}`, this.product);
           alert('상품이 수정되었습니다!');
         } else {
-          // 등록
           await api.post('/products', this.product);
           alert('상품이 등록되었습니다!');
         }
 
-        // 초기화
         this.product = { id: null, name: '', quantity: 0, price: 0 };
-        this.$emit('product-saved'); // 부모에게 저장 완료 알림
+        this.$emit('product-saved');
 
       } catch (error) {
         console.error('저장 실패:', error);
