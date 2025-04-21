@@ -66,14 +66,14 @@ export default {
 
       try {
         await axios.delete(`/products/${id}`);
-        this.fetchProducts(); // 삭제 후 목록 갱신
+        this.fetchProducts()
       } catch (error) {
         console.error('삭제 실패:', error);
       }
     },
     startEdit(product) {
       this.editId = product.id;
-      this.editProduct = { ...product }; // 깊은 복사
+      this.editProduct = { ...product };
     },
     cancelEdit() {
       this.editId = null;
