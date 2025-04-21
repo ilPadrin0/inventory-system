@@ -38,9 +38,11 @@ import axios from '../utils/axios';
 
 export default {
   name: 'ProductList',
+  props: {
+    products: Array,
+  },
   data() {
     return {
-      products: [],
       editId: null,
       editProduct: {
         name: '',
@@ -49,31 +51,20 @@ export default {
       },
     };
   },
-  mounted() {
-    this.fetchProducts();
-  },
   methods: {
-    async fetchProducts() {
-      try {
-        const response = await axios.get('/products');
-        this.products = response.data;
-      } catch (error) {
-        console.error('상품 목록 불러오기 실패:', error);
-      }
-    },
     async deleteProduct(id) {
       if (!confirm('정말 삭제하시겠습니까?')) return;
 
       try {
         await axios.delete(`/products/${id}`);
-        this.fetchProducts(); // 삭제 후 목록 갱신
+        this.$emit('product-deleted');
       } catch (error) {
         console.error('삭제 실패:', error);
       }
     },
     startEdit(product) {
       this.editId = product.id;
-      this.editProduct = { ...product }; // 깊은 복사
+      this.editProduct = { ...product };
     },
     cancelEdit() {
       this.editId = null;
@@ -82,7 +73,7 @@ export default {
     async updateProduct(id) {
       try {
         await axios.put(`/products/${id}`, this.editProduct);
-        this.fetchProducts();
+        this.$emit('product-saved');
         this.cancelEdit();
       } catch (error) {
         console.error('수정 실패:', error);

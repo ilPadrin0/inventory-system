@@ -1,7 +1,14 @@
 <template>
   <div>
-    <ProductForm :productToEdit="selectedProduct" @product-saved="fetchProducts" />
-    <ProductList @edit-product="handleEdit" :products="products" />
+    <ProductForm
+      :productToEdit="selectedProduct"
+      @product-saved="handleProductSaved"
+    />
+    <ProductList
+      :products="products"
+      @edit-product="handleEdit"
+      @product-deleted="fetchProducts"
+    />
   </div>
 </template>
 
@@ -17,17 +24,23 @@ export default {
   },
   data() {
     return {
-      selectedProduct: null,
       products: [],
+      selectedProduct: null,
     };
   },
   methods: {
     async fetchProducts() {
+      console.log('상품 목록을 다시 불러옵니다...');
       const res = await api.get('/products');
-      this.products = res.data;
+      console.log('받아온 상품:', res.data);
+      this.products = [...res.data];
     },
     handleEdit(product) {
       this.selectedProduct = product;
+    },
+    handleProductSaved() {
+      this.fetchProducts();
+      this.selectedProduct = null;
     },
   },
   mounted() {

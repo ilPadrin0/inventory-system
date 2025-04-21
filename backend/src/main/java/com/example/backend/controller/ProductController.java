@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.domain.Product;
+import com.example.backend.dto.ProductDto;
 import com.example.backend.service.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,15 +35,24 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @PostMapping
-    public Product create(@RequestBody Product product) {
-        return productService.saveProduct(product);
-    }
+	@PostMapping
+	public Product create(@Valid @RequestBody ProductDto dto) {
+	    Product product = new Product();
+	    product.setName(dto.getName());
+	    product.setQuantity(dto.getQuantity());
+	    product.setPrice(dto.getPrice());
+	    return productService.saveProduct(product);
+	}
     
-    @PutMapping("/{id}")
-    public Product update(@PathVariable("id") Long id, @RequestBody Product product) {
-        return productService.updateProduct(id, product);
-    }
+	@PutMapping("/{id}")
+	public Product update(@PathVariable("id") Long id, @Valid @RequestBody ProductDto dto) {
+	    Product product = new Product();
+	    product.setId(id);
+	    product.setName(dto.getName());
+	    product.setQuantity(dto.getQuantity());
+	    product.setPrice(dto.getPrice());
+	    return productService.updateProduct(id, product);
+	}
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
