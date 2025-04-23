@@ -1,5 +1,7 @@
 <template>
   <div>
+    <StatisticsChart :products="products" />
+
     <h2>상품 목록</h2>
     <div class="toolbar">
       <input
@@ -60,9 +62,13 @@
 <script>
 import axios from '../utils/axios';
 import { useToast } from 'vue-toastification';
+import StatisticsChart from './StatisticsChart.vue'
 
 export default {
   name: 'ProductList',
+  components: {
+    StatisticsChart,
+  },
   props: {
     products: Array,
   },
