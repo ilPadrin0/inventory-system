@@ -1,6 +1,24 @@
 <template>
   <div>
     <h2>상품 목록</h2>
+    <input v-model="searchTerm" placeholder="상품명 검색" style="margin-bottom: 10px;" />
+    <div style="margin: 10px 0;">
+      <label>정렬 기준: </label>
+      <select v-model="sortKey">
+        <option value="name">상품명</option>
+        <option value="price">가격</option>
+        <option value="quantity">수량</option>
+      </select>
+
+      <label style="margin-left: 10px;">방식: </label>
+      <select v-model="sortOrder">
+        <option value="asc">오름차순</option>
+        <option value="desc">내림차순</option>
+      </select>
+    </div>
+    <div style="margin: 10px 0;">
+      <label><input type="checkbox" v-model="onlyAvailable" /> 재고 있는 상품만 보기</label>
+    </div>
     <table>
       <thead>
         <tr>
@@ -11,7 +29,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in products" :key="product.id">
+        <tr v-for="product in filteredAndSortedProducts" :key="product.id">
           <td v-if="editId !== product.id">{{ product.name }}</td>
           <td v-else><input v-model="editProduct.name" /></td>
 
@@ -49,7 +67,36 @@ export default {
         quantity: 0,
         price: 0,
       },
+      searchTerm: '',
+      sortKey: 'name',
+      sortOrder: 'asc',
+      onlyAvailable: false,
     };
+  },
+  computed: {
+    filteredAndSortedProducts() {
+      let filtered = this.products.filter(product =>
+        product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+
+      if (this.onlyAvailable) {
+        filtered = filtered.filter(product => product.quantity > 0);
+      }
+
+      const sorted = [...filtered].sort((a, b) => {
+        let aVal = a[this.sortKey];
+        let bVal = b[this.sortKey];
+
+        if (typeof aVal === 'string') {
+          return this.sortOrder === 'asc'
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        }
+        return this.sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+
+      return sorted;
+    },
   },
   methods: {
     async deleteProduct(id) {
