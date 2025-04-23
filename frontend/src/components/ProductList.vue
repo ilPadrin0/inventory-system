@@ -1,24 +1,30 @@
 <template>
   <div>
     <h2>상품 목록</h2>
-    <input v-model="searchTerm" placeholder="상품명 검색" style="margin-bottom: 10px;" />
-    <div style="margin: 10px 0;">
-      <label>정렬 기준: </label>
+    <div class="toolbar">
+      <input
+        v-model="searchTerm"
+        placeholder="상품명 검색"
+        class="search"
+      />
+
       <select v-model="sortKey">
         <option value="name">상품명</option>
         <option value="price">가격</option>
         <option value="quantity">수량</option>
       </select>
 
-      <label style="margin-left: 10px;">방식: </label>
       <select v-model="sortOrder">
         <option value="asc">오름차순</option>
         <option value="desc">내림차순</option>
       </select>
+
+      <label>
+        <input type="checkbox" v-model="onlyAvailable" />
+        재고 있는 상품만
+      </label>
     </div>
-    <div style="margin: 10px 0;">
-      <label><input type="checkbox" v-model="onlyAvailable" /> 재고 있는 상품만 보기</label>
-    </div>
+
     <table>
       <thead>
         <tr>
@@ -53,6 +59,7 @@
 
 <script>
 import axios from '../utils/axios';
+import { useToast } from 'vue-toastification';
 
 export default {
   name: 'ProductList',
@@ -71,7 +78,11 @@ export default {
       sortKey: 'name',
       sortOrder: 'asc',
       onlyAvailable: false,
+      toast: null,
     };
+  },
+  created() {
+    this.toast = useToast();
   },
   computed: {
     filteredAndSortedProducts() {
@@ -101,12 +112,48 @@ export default {
   methods: {
     async deleteProduct(id) {
       if (!confirm('정말 삭제하시겠습니까?')) return;
-
       try {
         await axios.delete(`/products/${id}`);
         this.$emit('product-deleted');
+        this.toast.success('상품이 삭제되었습니다!');
       } catch (error) {
+        this.toast.error('삭제 실패!');
         console.error('삭제 실패:', error);
+      }
+    },
+    async updateProduct(id) {
+      const toast = useToast();
+
+      const quantity = Number(this.editProduct.quantity);
+      const price = Number(this.editProduct.price);
+
+      if (!this.editProduct.name.trim()) {
+        this.toast.error('상품명을 입력해주세요');
+        return;
+      }
+
+      if (isNaN(quantity) || quantity < 0) {
+        this.toast.error('수량은 0 이상이어야 합니다');
+        return;
+      }
+
+      if (isNaN(price) || price < 0) {
+        this.toast.error('가격은 0 이상이어야 합니다');
+        return;
+      }
+
+      try {
+        await axios.put(`/products/${id}`, {
+          ...this.editProduct,
+          quantity,
+          price,
+        });
+        this.$emit('product-saved');
+        this.toast.success('상품이 수정되었습니다!');
+        this.cancelEdit();
+      } catch (error) {
+        this.toast.error('수정 실패!');
+        console.error('수정 실패:', error);
       }
     },
     startEdit(product) {
@@ -116,16 +163,7 @@ export default {
     cancelEdit() {
       this.editId = null;
       this.editProduct = { name: '', quantity: 0, price: 0 };
-    },
-    async updateProduct(id) {
-      try {
-        await axios.put(`/products/${id}`, this.editProduct);
-        this.$emit('product-saved');
-        this.cancelEdit();
-      } catch (error) {
-        console.error('수정 실패:', error);
-      }
-    },
+    }
   },
 };
 </script>
@@ -140,5 +178,21 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
+}
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.toolbar input,
+.toolbar select {
+  padding: 5px;
+  font-size: 14px;
+}
+.toolbar .search {
+  flex: 1;
+  min-width: 200px;
 }
 </style>

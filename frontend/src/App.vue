@@ -8,6 +8,7 @@
       :products="products"
       @edit-product="handleEdit"
       @product-deleted="fetchProducts"
+      @product-saved="fetchProducts"
     />
   </div>
 </template>
