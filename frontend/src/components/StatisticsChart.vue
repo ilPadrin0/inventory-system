@@ -6,6 +6,7 @@
 
 <script>
 import { Bar } from "vue-chartjs";
+import axios from "../utils/axios";
 import {
   Chart as ChartJS,
   Title,
@@ -28,29 +29,24 @@ ChartJS.register(
 export default {
   name: "StatisticsChart",
   components: { Bar },
-  props: {
-    products: {
-      type: Array,
-      required: true,
-    },
+  data() {
+    return {
+      stats: null,
+    };
+  },
+  async mounted() {
+    try {
+      const res = await axios.get("/products/statistics");
+      this.stats = res.data;
+    } catch (error) {
+      console.error("통계 데이터 로드 실패:", error);
+    }
   },
   computed: {
     chartData() {
-      const totalProducts = this.products.length;
-      const totalQuantity = this.products.reduce(
-        (sum, p) => sum + Number(p.quantity),
-        0
-      );
-      const totalValue = this.products.reduce(
-        (sum, p) => sum + Number(p.quantity) * Number(p.price),
-        0
-      );
-      const lowStock = this.products.filter(
-        (p) => p.quantity > 0 && p.quantity <= 5
-      ).length;
-      const noStock = this.products.filter(
-        (p) => Number(p.quantity) === 0
-      ).length;
+      if (!this.stats) {
+        return { labels: [], datasets: [] };
+      }
 
       return {
         labels: [
@@ -63,13 +59,19 @@ export default {
         datasets: [
           {
             label: "상품 통계 (개수)",
-            data: [totalProducts, totalQuantity, lowStock, noStock, null],
+            data: [
+              this.stats.totalProducts,
+              this.stats.totalQuantity,
+              this.stats.lowStockCount,
+              this.stats.noStockCount,
+              null,
+            ],
             backgroundColor: "rgba(54, 162, 235, 0.7)",
             yAxisID: "y",
           },
           {
             label: "총 재고 금액 (원)",
-            data: [null, null, null, null, totalValue],
+            data: [null, null, null, null, this.stats.totalValue],
             backgroundColor: "rgba(255, 99, 132, 0.7)",
             yAxisID: "y1",
           },
@@ -79,37 +81,24 @@ export default {
     chartOptions() {
       return {
         responsive: true,
-        interaction: {
-          mode: "index",
-          intersect: false,
-        },
+        interaction: { mode: "index", intersect: false },
         scales: {
           y: {
             type: "linear",
             position: "left",
-            title: {
-              display: true,
-              text: "개수",
-            },
+            title: { display: true, text: "개수" },
             beginAtZero: true,
           },
           y1: {
             type: "linear",
             position: "right",
-            title: {
-              display: true,
-              text: "금액 (원)",
-            },
+            title: { display: true, text: "금액 (원)" },
             beginAtZero: true,
-            grid: {
-              drawOnChartArea: false,
-            },
+            grid: { drawOnChartArea: false },
           },
         },
         plugins: {
-          legend: {
-            position: "top",
-          },
+          legend: { position: "top" },
           tooltip: {
             callbacks: {
               label: function (context) {

@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.domain.Product;
 import com.example.backend.dto.ProductDto;
+import com.example.backend.dto.ProductStatisticsDto;
 import com.example.backend.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -57,5 +59,20 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         productService.deleteProduct(id);
+    }
+    
+    @GetMapping("/statistics")
+    public ProductStatisticsDto getStatistics() {
+        return productService.getStatistics();
+    }
+    
+    @GetMapping("/search")
+    public List<Product> searchProducts(
+        @RequestParam(name = "keyword", required = false) String keyword,
+        @RequestParam(name = "sortBy", defaultValue = "name") String sortBy,
+        @RequestParam(name = "order", defaultValue = "asc") String order,
+        @RequestParam(name = "onlyAvailable", required = false, defaultValue = "false") Boolean onlyAvailable
+    ) {
+        return productService.searchProducts(keyword, sortBy, order, onlyAvailable);
     }
 }

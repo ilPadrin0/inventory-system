@@ -5,18 +5,18 @@
       @product-saved="handleProductSaved"
     />
     <ProductList
-      :products="products"
       @edit-product="handleEdit"
       @product-deleted="fetchProducts"
       @product-saved="fetchProducts"
+      @update-options="updateOptions"
     />
   </div>
 </template>
 
 <script>
-import ProductForm from './components/ProductForm.vue';
-import ProductList from './components/ProductList.vue';
-import api from './utils/axios';
+import ProductForm from "./components/ProductForm.vue";
+import ProductList from "./components/ProductList.vue";
+import api from "./utils/axios";
 
 export default {
   components: {
@@ -27,14 +27,27 @@ export default {
     return {
       products: [],
       selectedProduct: null,
+      keyword: "",
+      sortKey: "name",
+      sortOrder: "asc",
+      onlyAvailable: false,
     };
   },
   methods: {
     async fetchProducts() {
-      console.log('상품 목록을 다시 불러옵니다...');
-      const res = await api.get('/products');
-      console.log('받아온 상품:', res.data);
-      this.products = [...res.data];
+      try {
+        const res = await api.get("/products/search", {
+          params: {
+            keyword: this.keyword,
+            sortBy: this.sortKey,
+            order: this.sortOrder,
+            onlyAvailable: this.onlyAvailable,
+          },
+        });
+        this.products = [...res.data];
+      } catch (err) {
+        console.error("상품 불러오기 실패:", err);
+      }
     },
     handleEdit(product) {
       this.selectedProduct = product;
@@ -42,6 +55,14 @@ export default {
     handleProductSaved() {
       this.fetchProducts();
       this.selectedProduct = null;
+    },
+    updateOptions(options) {
+      if ("keyword" in options) this.keyword = options.keyword;
+      if ("sortKey" in options) this.sortKey = options.sortKey;
+      if ("sortOrder" in options) this.sortOrder = options.sortOrder;
+      if ("onlyAvailable" in options)
+        this.onlyAvailable = options.onlyAvailable;
+      this.fetchProducts();
     },
   },
   mounted() {
