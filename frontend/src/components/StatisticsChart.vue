@@ -29,22 +29,16 @@ ChartJS.register(
 export default {
   name: "StatisticsChart",
   components: { Bar },
+  props: {
+    statistics: Object,
+  },
   data() {
     return {
-      stats: null,
     };
-  },
-  async mounted() {
-    try {
-      const res = await axios.get("/products/statistics");
-      this.stats = res.data;
-    } catch (error) {
-      console.error("통계 데이터 로드 실패:", error);
-    }
   },
   computed: {
     chartData() {
-      if (!this.stats) {
+      if (!this.statistics) {
         return { labels: [], datasets: [] };
       }
 
@@ -60,10 +54,10 @@ export default {
           {
             label: "상품 통계 (개수)",
             data: [
-              this.stats.totalProducts,
-              this.stats.totalQuantity,
-              this.stats.lowStockCount,
-              this.stats.noStockCount,
+              this.statistics.totalProducts,
+              this.statistics.totalQuantity,
+              this.statistics.lowStockCount,
+              this.statistics.noStockCount,
               null,
             ],
             backgroundColor: "rgba(54, 162, 235, 0.7)",
@@ -71,7 +65,7 @@ export default {
           },
           {
             label: "총 재고 금액 (원)",
-            data: [null, null, null, null, this.stats.totalValue],
+            data: [null, null, null, null, this.statistics.totalValue],
             backgroundColor: "rgba(255, 99, 132, 0.7)",
             yAxisID: "y1",
           },

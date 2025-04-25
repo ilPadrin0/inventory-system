@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         return ResponseEntity.badRequest().body("입력 오류: " + message);
     }
+    
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<String> handleProductNotFound(ProductNotFoundException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
+    }
 }

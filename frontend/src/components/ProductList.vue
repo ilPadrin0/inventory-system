@@ -1,6 +1,6 @@
 <template>
   <div>
-    <StatisticsChart />
+    <StatisticsChart :statistics="statistics" />
 
     <h2>상품 목록</h2>
     <div class="toolbar">
@@ -88,13 +88,23 @@ export default {
       editId: null,
       editProduct: { name: "", quantity: 0, price: 0 },
       toast: null,
+      statistics: null,
     };
   },
   created() {
     this.toast = useToast();
     this.fetchProducts();
+    this.fetchStatistics();
   },
   methods: {
+    async fetchStatistics() {
+      try {
+        const res = await axios.get("/products/statistics");
+        this.statistics = res.data;
+      } catch (err) {
+        console.error("통계 불러오기 실패:", err);
+      }
+    },
     async fetchProducts() {
       try {
         const res = await axios.get("/products/search", {
@@ -115,9 +125,10 @@ export default {
       try {
         await axios.delete(`/products/${id}`);
         this.fetchProducts();
+        this.fetchStatistics();
         this.toast.success("상품이 삭제되었습니다!");
       } catch (error) {
-        this.toast.error("삭제 실패!");
+        this.toast.error(error.response?.data || "삭제 실패!");
         console.error("삭제 실패:", error);
       }
     },
@@ -147,8 +158,9 @@ export default {
         this.toast.success("상품이 수정되었습니다!");
         this.cancelEdit();
         this.fetchProducts();
+        this.fetchStatistics();
       } catch (error) {
-        this.toast.error("수정 실패!");
+        this.toast.error(error.response?.data || "수정 실패!");
         console.error("수정 실패:", error);
       }
     },

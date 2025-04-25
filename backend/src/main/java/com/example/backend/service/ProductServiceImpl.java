@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.domain.Product;
 import com.example.backend.dto.ProductStatisticsDto;
+import com.example.backend.exception.ProductNotFoundException;
 import com.example.backend.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,8 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Override
 	public Product getProductById(Long id) {
-		return productRepository.findById(id).orElse(null);
+	    return productRepository.findById(id)
+	        .orElseThrow(() -> new ProductNotFoundException(id)); // ✅ 예외 던짐
 	}
 	
 	@Override
@@ -44,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
 	
 	@Override
 	public void deleteProduct(Long id) {
+		Product existing = getProductById(id);
 		productRepository.deleteById(id);
 	}
 	

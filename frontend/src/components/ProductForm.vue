@@ -68,7 +68,7 @@ export default {
         this.resetForm();
         this.$emit("product-saved");
       } catch (error) {
-        this.toast.error("저장 실패!");
+        this.toast.error(error.response?.data || "저장 실패!");
         console.error("저장 실패:", error);
       }
     },
