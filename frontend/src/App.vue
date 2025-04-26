@@ -1,9 +1,6 @@
+//App.vue
 <template>
   <div>
-    <ProductForm
-      :productToEdit="selectedProduct"
-      @product-saved="handleProductSaved"
-    />
     <ProductList
       @edit-product="handleEdit"
       @product-deleted="fetchProducts"
@@ -14,19 +11,15 @@
 </template>
 
 <script>
-import ProductForm from "./components/ProductForm.vue";
 import ProductList from "./components/ProductList.vue";
 import api from "./utils/axios";
 
 export default {
   components: {
-    ProductForm,
     ProductList,
   },
   data() {
     return {
-      products: [],
-      selectedProduct: null,
       keyword: "",
       sortKey: "name",
       sortOrder: "asc",

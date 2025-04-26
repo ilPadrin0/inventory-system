@@ -1,3 +1,4 @@
+//ProductForm.vue
 <template>
   <div>
     <h2>{{ product.id ? "상품 수정" : "상품 등록" }}</h2>

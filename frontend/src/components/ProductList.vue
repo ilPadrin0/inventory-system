@@ -1,8 +1,30 @@
+//ProductList.vue
 <template>
   <div>
     <StatisticsChart :statistics="statistics" />
 
-    <h2>상품 목록</h2>
+    <div class="title-with-button">
+      <h2>상품 목록</h2>
+      <button @click="toggleCreateForm">
+        {{ showCreateForm ? "닫기" : "상품 등록" }}
+      </button>
+    </div>
+
+    <div v-if="showCreateForm" class="create-form">
+      <input v-model="newProduct.name" placeholder="상품명" />
+      <input
+        v-model.number="newProduct.quantity"
+        type="number"
+        placeholder="수량"
+      />
+      <input
+        v-model.number="newProduct.price"
+        type="number"
+        placeholder="가격"
+      />
+      <button @click="createProduct">저장</button>
+    </div>
+
     <div class="toolbar">
       <input
         v-model="keyword"
@@ -34,6 +56,12 @@
 
     <table>
       <thead>
+        <colgroup>
+          <col style="width: 40%" />
+          <col style="width: 15%" />
+          <col style="width: 15%" />
+          <col style="width: 30%" />
+        </colgroup>
         <tr>
           <th>상품명</th>
           <th>수량</th>
@@ -89,6 +117,8 @@ export default {
       editProduct: { name: "", quantity: 0, price: 0 },
       toast: null,
       statistics: null,
+      showCreateForm: false,
+      newProduct: { name: "", quantity: 0, price: 0 },
     };
   },
   created() {
@@ -97,6 +127,37 @@ export default {
     this.fetchStatistics();
   },
   methods: {
+    toggleCreateForm() {
+      this.showCreateForm = !this.showCreateForm;
+      this.newProduct = { name: "", quantity: 0, price: 0 };
+    },
+    async createProduct() {
+      const { name, quantity, price } = this.newProduct;
+
+      if (!name.trim()) {
+        this.toast.error("상품명을 입력해주세요");
+        return;
+      }
+      if (!Number.isInteger(quantity) || quantity < 0) {
+        this.toast.error("수량은 0 이상의 정수여야 합니다");
+        return;
+      }
+      if (!Number.isInteger(price) || price < 1) {
+        this.toast.error("가격은 1 이상의 정수여야 합니다");
+        return;
+      }
+
+      try {
+        await axios.post("/products", this.newProduct);
+        this.toast.success("상품이 등록되었습니다!");
+        this.fetchProducts();
+        this.fetchStatistics();
+        this.toggleCreateForm();
+      } catch (error) {
+        this.toast.error(error.response?.data || "등록 실패!");
+        console.error("등록 실패:", error);
+      }
+    },
     async fetchStatistics() {
       try {
         const res = await axios.get("/products/statistics");
@@ -180,20 +241,56 @@ export default {
 table {
   border-collapse: collapse;
   width: 100%;
-  margin-top: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+  table-layout: fixed;
 }
+
+colgroup col:nth-child(1) { width: 40%; }
+colgroup col:nth-child(2) { width: 15%; }
+colgroup col:nth-child(3) { width: 15%; }
+colgroup col:nth-child(4) { width: 30%; }
+
 th,
 td {
   border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 14px;
+  vertical-align: middle;
+  height: 40px;
 }
+
+td input {
+  width: 100%;
+  height: 30px;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid #888;
+  background-color: #2a2a2a;
+  color: #fff;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+td input:focus {
+  border-color: #4fc3f7;
+  background-color: #333;
+}
+
 .toolbar {
   display: flex;
   gap: 10px;
   align-items: center;
   margin-bottom: 15px;
   flex-wrap: wrap;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .toolbar input,
 .toolbar select {
@@ -203,5 +300,23 @@ td {
 .toolbar .search {
   flex: 1;
   min-width: 200px;
+}
+.title-with-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+.create-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.create-form input {
+  padding: 5px;
+  font-size: 14px;
 }
 </style>

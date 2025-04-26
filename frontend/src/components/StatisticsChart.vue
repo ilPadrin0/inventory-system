@@ -1,5 +1,7 @@
+//StatisticsChart.vue
 <template>
   <div>
+    <h2> 통계 요약 </h2>
     <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>
@@ -112,6 +114,6 @@ export default {
 <style scoped>
 div {
   height: 400px;
-  margin-bottom: 20px;
+  margin-bottom: 70px;
 }
 </style>
