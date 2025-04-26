@@ -4,7 +4,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import com.example.backend.event.InventoryChangedEvent;
 
 import com.example.backend.domain.Product;
 import com.example.backend.dto.ProductStatisticsDto;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductServiceImpl implements ProductService {
 
 	private final ProductRepository productRepository;
+	private final ApplicationEventPublisher publisher;
 	
 	@Override
 	public List<Product> getAllProducts() {
@@ -41,7 +45,13 @@ public class ProductServiceImpl implements ProductService {
         existing.setName(product.getName());
         existing.setQuantity(product.getQuantity());
         existing.setPrice(product.getPrice());
-        return productRepository.save(existing);
+        
+        Product saved =  productRepository.save(existing);
+        
+        publisher.publishEvent(
+                new InventoryChangedEvent(saved.getId(), saved.getQuantity())
+              );
+              return saved;
     }
 	
 	@Override

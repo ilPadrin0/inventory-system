@@ -3,8 +3,10 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue()],define: {
+    global: 'window'
+  },
   server: {
-    port: 8081, // 🔥 여기서 포트 번호 설정
+    port: 8081,
   },
 })

@@ -100,6 +100,7 @@
 import axios from "../utils/axios";
 import { useToast } from "vue-toastification";
 import StatisticsChart from "./StatisticsChart.vue";
+import { connectRealtime, disconnectRealtime } from "../utils/realtime";
 
 export default {
   name: "ProductList",
@@ -125,6 +126,10 @@ export default {
     this.toast = useToast();
     this.fetchProducts();
     this.fetchStatistics();
+    connectRealtime(this.handleRealtimeUpdate);
+  },
+  beforeUnmount() {
+    disconnectRealtime();
   },
   methods: {
     toggleCreateForm() {
@@ -133,7 +138,6 @@ export default {
     },
     async createProduct() {
       const { name, quantity, price } = this.newProduct;
-
       if (!name.trim()) {
         this.toast.error("상품명을 입력해주세요");
         return;
@@ -146,7 +150,6 @@ export default {
         this.toast.error("가격은 1 이상의 정수여야 합니다");
         return;
       }
-
       try {
         await axios.post("/products", this.newProduct);
         this.toast.success("상품이 등록되었습니다!");
@@ -196,7 +199,6 @@ export default {
     async updateProduct(id) {
       const quantity = Number(this.editProduct.quantity);
       const price = Number(this.editProduct.price);
-
       if (!this.editProduct.name.trim()) {
         this.toast.error("상품명을 입력해주세요");
         return;
@@ -209,7 +211,6 @@ export default {
         this.toast.error("가격은 0 이상이어야 합니다");
         return;
       }
-
       try {
         await axios.put(`/products/${id}`, {
           ...this.editProduct,
@@ -233,6 +234,16 @@ export default {
       this.editId = null;
       this.editProduct = { name: "", quantity: 0, price: 0 };
     },
+    handleRealtimeUpdate({ productId, newQuantity }) {트
+      const p = this.products.find((p) => p.id === productId);
+      if (p) p.quantity = newQuantity;
+      this.fetchStatistics();
+      if (newQuantity <= 5 && p) {
+        this.toast.warning(
+          `상품 "${p.name}" 재고가 ${newQuantity}개로 낮아졌습니다.`
+        );
+      }
+    },
   },
 };
 </script>
@@ -245,12 +256,18 @@ table {
   margin: 20px auto;
   table-layout: fixed;
 }
-
-colgroup col:nth-child(1) { width: 40%; }
-colgroup col:nth-child(2) { width: 15%; }
-colgroup col:nth-child(3) { width: 15%; }
-colgroup col:nth-child(4) { width: 30%; }
-
+colgroup col:nth-child(1) {
+  width: 40%;
+}
+colgroup col:nth-child(2) {
+  width: 15%;
+}
+colgroup col:nth-child(3) {
+  width: 15%;
+}
+colgroup col:nth-child(4) {
+  width: 30%;
+}
 th,
 td {
   border: 1px solid #ccc;
@@ -260,7 +277,6 @@ td {
   vertical-align: middle;
   height: 40px;
 }
-
 td input {
   width: 100%;
   height: 30px;
@@ -276,12 +292,10 @@ td input {
   outline: none;
   transition: all 0.2s;
 }
-
 td input:focus {
   border-color: #4fc3f7;
   background-color: #333;
 }
-
 .toolbar {
   display: flex;
   gap: 10px;
