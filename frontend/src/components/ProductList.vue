@@ -5,12 +5,12 @@
 
     <div class="title-with-button">
       <h2>상품 목록</h2>
-      <button @click="toggleCreateForm">
+      <button v-if="isAdmin" @click="toggleCreateForm">
         {{ showCreateForm ? "닫기" : "상품 등록" }}
       </button>
     </div>
 
-    <div v-if="showCreateForm" class="create-form">
+    <div v-if="showCreateForm && isAdmin" class="create-form">
       <input v-model="newProduct.name" placeholder="상품명" />
       <input
         v-model.number="newProduct.quantity"
@@ -22,7 +22,7 @@
         type="number"
         placeholder="가격"
       />
-      <button @click="createProduct">저장</button>
+      <button v-if="isAdmin" @click="createProduct">저장</button>
     </div>
 
     <div class="toolbar">
@@ -81,14 +81,24 @@
           <td v-else><input type="number" v-model="editProduct.price" /></td>
 
           <td>
-            <button v-if="editId !== product.id" @click="startEdit(product)">
+            <button
+              v-if="isAdmin && editId !== product.id"
+              @click="startEdit(product)"
+            >
               수정
             </button>
-            <button v-else @click="updateProduct(product.id)">저장</button>
-            <button v-if="editId === product.id" @click="cancelEdit">
+            <button
+              v-if="isAdmin && editId === product.id"
+              @click="updateProduct(product.id)"
+            >
+              저장
+            </button>
+            <button v-if="isAdmin && editId === product.id" @click="cancelEdit">
               취소
             </button>
-            <button @click="deleteProduct(product.id)">삭제</button>
+            <button v-if="isAdmin" @click="deleteProduct(product.id)">
+              삭제
+            </button>
           </td>
         </tr>
       </tbody>
@@ -101,6 +111,7 @@ import axios from "../utils/axios";
 import { useToast } from "vue-toastification";
 import StatisticsChart from "./StatisticsChart.vue";
 import { connectRealtime, disconnectRealtime } from "../utils/realtime";
+import { getUserRole } from "../utils/auth";
 
 export default {
   name: "ProductList",
@@ -121,6 +132,11 @@ export default {
       showCreateForm: false,
       newProduct: { name: "", quantity: 0, price: 0 },
     };
+  },
+  computed: {
+    isAdmin() {
+      return getUserRole() === "ROLE_ADMIN";
+    },
   },
   created() {
     this.toast = useToast();
@@ -181,7 +197,7 @@ export default {
         });
         this.products = res.data;
       } catch (err) {
-        console.error("상품 불러오기 실패:", err);
+        this.toast.error("상품을 불러오는 중 오류가 발생했습니다.");
       }
     },
     async deleteProduct(id) {
@@ -234,13 +250,13 @@ export default {
       this.editId = null;
       this.editProduct = { name: "", quantity: 0, price: 0 };
     },
-    handleRealtimeUpdate({ productId, newQuantity }) {트
+    handleRealtimeUpdate({ productId, newQuantity }) {
       const p = this.products.find((p) => p.id === productId);
       if (p) p.quantity = newQuantity;
       this.fetchStatistics();
       if (newQuantity <= 5 && p) {
         this.toast.warning(
-          `상품 "${p.name}" 재고가 ${newQuantity}개로 낮아졌습니다.`
+          `상품 "${p.name}" 재고가 ${newQuantity}개로 낮아졌습니다.`,
         );
       }
     },

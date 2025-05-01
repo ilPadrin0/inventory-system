@@ -1,7 +1,7 @@
 //StatisticsChart.vue
 <template>
   <div>
-    <h2> 통계 요약 </h2>
+    <h2>통계 요약</h2>
     <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>
@@ -25,7 +25,7 @@ ChartJS.register(
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
+  LinearScale,
 );
 
 export default {
@@ -35,8 +35,7 @@ export default {
     statistics: Object,
   },
   data() {
-    return {
-    };
+    return {};
   },
   computed: {
     chartData() {
