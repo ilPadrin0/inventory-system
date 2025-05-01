@@ -23,7 +23,7 @@ import com.example.backend.repository.UserRepository;
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;  // renamed
+    private final UserRepository userRepository;
     private final DaoAuthenticationProvider authenticationProvider;
     
     public SecurityConfig(JwtUtil jwtUtil,

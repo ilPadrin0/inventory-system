@@ -15,11 +15,11 @@ import java.util.List;
 
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;  // 필드 이름 변경
+    private final UserRepository userRepository;
 
     public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;    // 생성자 인자도 userRepository
+        this.userRepository = userRepository;
     }
 
     @Override

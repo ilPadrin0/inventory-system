@@ -31,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public Product getProductById(Long id) {
 	    return productRepository.findById(id)
-	        .orElseThrow(() -> new ProductNotFoundException(id)); // ✅ 예외 던짐
+	        .orElseThrow(() -> new ProductNotFoundException(id));
 	}
 	
 	@Override

@@ -2,7 +2,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
-import Home from "../views/Home.vue"; // 기존 ProductList가 있는 화면
+import Home from "../views/Home.vue";
 import { getToken, getUserRole } from "../utils/auth";
 
 const routes = [

@@ -9,7 +9,6 @@ const instance = axios.create({
   },
 });
 
-// 요청 인터셉터: 요청할 때마다 localStorage의 JWT를 헤더에 붙입니다.
 instance.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -21,7 +20,6 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// 응답 인터셉터: 401 Unauthorized 응답이 오면 토큰을 제거하고 /login으로 리다이렉트합니다.
 instance.interceptors.response.use(
   (response) => response,
   (error) => {

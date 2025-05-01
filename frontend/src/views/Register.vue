@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     async signup() {
-      // 혹시 이전에 남은 토큰이 있다면 제거
       clearToken();
       try {
         await api.post("/auth/signup", {

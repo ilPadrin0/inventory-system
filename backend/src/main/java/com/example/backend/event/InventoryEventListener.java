@@ -15,7 +15,6 @@ public class InventoryEventListener {
 
     @EventListener
     public void onInventoryChanged(InventoryChangedEvent event) {
-        // ② /topic/inventory 채널로 페이로드 전송
         template.convertAndSend(
           "/topic/inventory",
           Map.of(

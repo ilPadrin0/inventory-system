@@ -17,7 +17,7 @@ export function connectRealtime(onMessage) {
 
 export function disconnectRealtime() {
   if (stompClient) {
-    stompClient.disconnect(); // 콜백 없이 단순히 연결 해제
-    stompClient = null; // 클라이언트 초기화
+    stompClient.disconnect();
+    stompClient = null;
   }
 }

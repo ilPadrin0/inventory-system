@@ -25,7 +25,7 @@ public class User {
     private String username;
 
     @Column(nullable=false)
-    private String password;  // BCrypt로 암호화 저장
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
